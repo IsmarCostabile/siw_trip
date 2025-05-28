@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:fragment="layout(title, content)">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title}">SiW Trips</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- FontAwesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    
+    <!-- Custom CSS for additional styling -->
+    <style>
+        .map-card-hover:hover {
+            transform: translateY(-4px);
+            transition: transform 0.3s ease;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen flex flex-col">
+    <!-- Navigation Bar -->
+    <nav class="bg-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <div class="flex items-center">
+                    <a href="/" class="flex items-center space-x-2">
+                        <svg class="h-8 w-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
+                        </svg>
+                        <span class="text-xl font-bold text-gray-800">SiW Trips</span>
+                    </a>
+                </div>
+                
+                <!-- Navigation Links -->
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="/" class="text-gray-600 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition duration-150">Home</a>
+                    </div>
+                </div>
+                
+                <!-- User Menu -->
+                <div class="hidden md:block">
+                    <div class="ml-4 flex items-center md:ml-6 space-x-4">
+                        <!-- Logged in user menu -->
+                        <div th:if="${session.loggedInUser}" class="flex items-center space-x-4">
+                            <span class="text-sm text-gray-700">
+                                Welcome, <span class="font-medium" th:text="${session.loggedInUser.firstName}">User</span>!
+                            </span>
+                            <a href="/logout" class="bg-red-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-red-700 transition duration-150">Logout</a>
+                        </div>
+                        <!-- Guest user menu -->
+                        <div th:unless="${session.loggedInUser}" class="flex items-center space-x-4">
+                            <a href="/login" class="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition duration-150">Login</a>
+                            <a href="/register" class="border border-blue-600 text-blue-600 px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-50 transition duration-150">Register</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Mobile menu button -->
+                <div class="md:hidden">
+                    <button type="button" class="bg-gray-50 inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100" id="mobile-menu-button">
+                        <svg class="block h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Mobile menu -->
+        <div class="md:hidden hidden" id="mobile-menu">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white border-t">
+                <a href="/" class="text-gray-600 hover:text-blue-600 block px-3 py-2 rounded-md text-base font-medium">Home</a>
+                <div class="border-t pt-4 mt-4">
+                    <!-- Logged in user mobile menu -->
+                    <div th:if="${session.loggedInUser}">
+                        <p class="text-sm text-gray-600 px-3 mb-2">
+                            Welcome, <span class="font-medium" th:text="${session.loggedInUser.firstName}">User</span>!
+                        </p>
+                        <a href="/logout" class="block bg-red-600 text-white px-3 py-2 rounded-md text-base font-medium">Logout</a>
+                    </div>
+                    <!-- Guest user mobile menu -->
+                    <div th:unless="${session.loggedInUser}">
+                        <a href="/login" class="block bg-blue-600 text-white px-3 py-2 rounded-md text-base font-medium mb-2">Login</a>
+                        <a href="/register" class="block border border-blue-600 text-blue-600 px-3 py-2 rounded-md text-base font-medium">Register</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main th:insert="${content}" class="flex-grow">
+        <!-- This will be replaced by specific page content -->
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">SiW Trips</h3>
+                    <p class="text-gray-300">Your premier destination for trip planning.</p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Contacts</h3>
+                    <p class="text-gray-300">Email: ismar.costabile@icloud</p>
+                    <p class="text-gray-300">Phone: +39 345 9376977</p>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
+                <p>&copy; 2025 SiW Trips. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- Mobile menu toggle script -->
+    <script>
+        document.getElementById('mobile-menu-button').addEventListener('click', function() {
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenu.classList.toggle('hidden');
+        });
+    </script>
+</body>
+</html>
