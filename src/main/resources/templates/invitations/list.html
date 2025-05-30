@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(~{::title}, ~{::main})}">
+<head>
+    <title>My Invitations - SiW Trips</title>
+</head>
+<body>
+    <main>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <!-- Header -->
+            <div class="mb-8">
+                <h1 class="text-3xl font-bold text-gray-900 mb-4">My Invitations</h1>
+                <p class="text-gray-600">Manage your trip invitations and join new adventures.</p>
+            </div>
+
+            <!-- Messages -->
+            <div th:if="${errorMessage}" class="mb-6 p-4 bg-red-50 border border-red-200 rounded-md">
+                <div class="flex items-center">
+                    <svg class="w-5 h-5 text-red-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+                    </svg>
+                    <p class="text-sm text-red-600" th:text="${errorMessage}">Error message</p>
+                </div>
+            </div>
+
+            <div th:if="${successMessage}" class="mb-6 p-4 bg-green-50 border border-green-200 rounded-md">
+                <div class="flex items-center">
+                    <svg class="w-5 h-5 text-green-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                    </svg>
+                    <p class="text-sm text-green-600" th:text="${successMessage}">Success message</p>
+                </div>
+            </div>
+
+            <!-- Pending Invitations Section -->
+            <div class="mb-12">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">
+                    <i class="fas fa-clock text-orange-500 mr-2"></i>
+                    Pending Invitations
+                </h2>
+
+                <!-- No pending invitations message -->
+                <div th:if="${pendingInvitations.empty}" class="bg-white rounded-lg shadow p-6 text-center">
+                    <i class="fas fa-thumbs-up text-6xl text-gray-400 mx-auto mb-4 block"></i>
+                    <p class="text-gray-600">Your all caught up. You don't have any pending invitations.</p>
+                </div>
+
+                <!-- Pending invitations list -->
+                <div th:unless="${pendingInvitations.empty}" class="grid grid-cols-1 gap-6">
+                    <div th:each="invitation : ${pendingInvitations}" class="bg-white rounded-lg shadow overflow-hidden border-l-4 border-orange-500">
+                        <div class="p-5">
+                            <div class="flex justify-between mb-3">
+                                <h3 class="font-semibold text-lg text-gray-900" th:text="${invitation.trip.name}">Trip Name</h3>
+                                <span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-orange-100 text-orange-800">
+                                    Pending
+                                </span>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <p class="text-sm text-gray-600 mb-2">
+                                    <i class="fas fa-calendar text-blue-500 mr-1"></i>
+                                    <span th:text="${#temporals.format(invitation.trip.startDateTime, 'MMM dd')} + ' - ' + ${#temporals.format(invitation.trip.endDateTime, 'MMM dd, yyyy')}">Trip Date Range</span>
+                                </p>
+                                <p class="text-sm text-gray-600">
+                                    <i class="fas fa-user text-green-500 mr-1"></i>
+                                    Invited by <span class="font-medium" th:text="${invitation.invitedBy.firstName + ' ' + invitation.invitedBy.lastName}">Inviter Name</span>
+                                </p>
+                            </div>
+
+                            <div th:if="${invitation.message}" class="mb-4 p-3 bg-gray-50 rounded-md text-sm italic text-gray-600">
+                                <i class="fas fa-quote-left text-gray-400 mr-1"></i>
+                                <span th:text="${invitation.message}">Invitation message</span>
+                                <i class="fas fa-quote-right text-gray-400 ml-1"></i>
+                            </div>
+
+                            <div class="mt-4 grid grid-cols-2 gap-2">
+                                <a th:href="@{'/invitations/trip/' + ${invitation.trip.id}}" class="text-center px-3 py-2 rounded-md text-sm font-medium bg-blue-50 text-blue-600 hover:bg-blue-100 transition duration-150">
+                                    <i class="fas fa-eye mr-1"></i>
+                                    View Trip
+                                </a>
+                                
+                                <div class="flex space-x-2">
+                                    <form th:action="@{'/invitations/' + ${invitation.id} + '/accept'}" method="post" class="flex-1">
+                                        <button type="submit" class="w-full px-3 py-2 rounded-md text-sm font-medium bg-green-600 text-white hover:bg-green-700 transition duration-150">
+                                            <i class="fas fa-check mr-1"></i>
+                                            Accept
+                                        </button>
+                                    </form>
+                                    
+                                    <form th:action="@{'/invitations/' + ${invitation.id} + '/decline'}" method="post" class="flex-1">
+                                        <button type="submit" class="w-full px-3 py-2 rounded-md text-sm font-medium bg-red-600 text-white hover:bg-red-700 transition duration-150">
+                                            <i class="fas fa-times mr-1"></i>
+                                            Decline
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

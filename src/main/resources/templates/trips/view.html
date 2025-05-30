@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(~{::title}, ~{::main})}">
+<head>
+    <title th:text="${trip.name + ' - SiW Trips'}">Trip Details - SiW Trips</title>
+</head>
+<body>
+    <main>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <!-- Header -->
+            <div class="mb-8">
+                <nav class="flex items-center space-x-2 text-sm text-gray-500 mb-4">
+                    <a href="/trips" class="hover:text-blue-600">All Trips</a>
+                    <i class="fas fa-chevron-right text-xs"></i>
+                    <span class="text-gray-900" th:text="${trip.name}">Trip Name</span>
+                </nav>
+
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h1 class="text-3xl font-bold text-gray-900 mb-2" th:text="${trip.name}">Trip Name</h1>
+                        <div class="flex items-center space-x-4">
+                            <!-- Status Badge -->
+                            <span th:if="${trip.status.name() == 'PLANNING'}" class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800" th:text="${trip.status.displayName}">Planning</span>
+                            <span th:if="${trip.status.name() == 'CONFIRMED'}" class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800" th:text="${trip.status.displayName}">Confirmed</span>
+                            <span th:if="${trip.status.name() == 'ONGOING'}" class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800" th:text="${trip.status.displayName}">Ongoing</span>
+                            <span th:if="${trip.status.name() == 'COMPLETED'}" class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800" th:text="${trip.status.displayName}">Completed</span>
+                            <span th:if="${trip.status.name() == 'CANCELLED'}" class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800" th:text="${trip.status.displayName}">Cancelled</span>
+                            
+                            <span class="text-gray-500 text-sm">
+                                Created <span th:text="${#temporals.format(trip.createdAt, 'MMM dd, yyyy')}">date</span>
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="flex space-x-3">
+                        <!-- Edit Button (only for admins) -->
+                        <a th:if="${session.loggedInUser != null and trip.admins.contains(session.loggedInUser)}"
+                           th:href="@{'/trips/' + ${trip.id} + '/edit'}" 
+                           class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150">
+                            <i class="fas fa-edit mr-2"></i>
+                            Edit Trip
+                        </a>
+                        
+                        <!-- Leave Trip Button (only for participants, not from invitation view) -->
+                        <form th:if="${session.loggedInUser != null and trip.participants.contains(session.loggedInUser) and (isInviteView == null or !isInviteView)}"
+                              th:action="@{'/trips/' + ${trip.id} + '/leave'}" 
+                              method="post" 
+                              class="inline"
+                              th:onsubmit="${trip.admins.contains(session.loggedInUser) and trip.admins.size() == 1} ? 
+                                          'return confirm(\'You are the only administrator of this trip. Please assign another admin before leaving. Are you sure you want to continue?\')' : 
+                                          'return confirm(\'Are you sure you want to leave this trip?\')'">
+                            <button type="submit" 
+                                    class="inline-flex items-center px-4 py-2 border border-red-300 text-sm font-medium rounded-md text-red-700 bg-white hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition duration-150">
+                                <i class="fas fa-sign-out-alt mr-2"></i>
+                                Leave Trip
+                            </button>
+                        </form>
+                        
+                        <!-- Back Button -->
+                        <a th:href="${isInviteView != null and isInviteView ? '/invitations' : '/trips'}" 
+                           class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150">
+                            <i class="fas fa-arrow-left mr-2"></i>
+                            <span th:text="${isInviteView != null and isInviteView ? 'Back to Invitations' : 'Back to Trips'}">Back</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Messages -->
+            <div th:if="${errorMessage}" class="mb-6 p-4 bg-red-50 border border-red-200 rounded-md">
+                <div class="flex items-center">
+                    <svg class="w-5 h-5 text-red-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+                    </svg>
+                    <p class="text-sm text-red-600" th:text="${errorMessage}">Error message</p>
+                </div>
+            </div>
+
+            <div th:if="${successMessage}" class="mb-6 p-4 bg-green-50 border border-green-200 rounded-md">
+                <div class="flex items-center">
+                    <svg class="w-5 h-5 text-green-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                    </svg>
+                    <p class="text-sm text-green-600" th:text="${successMessage}">Success message</p>
+                </div>
+            </div>
+
+            <!-- Invitation Banner (only shown when viewing from an invitation) -->
+            <div th:if="${isInviteView != null and isInviteView and invitation != null}" class="mb-6 p-5 bg-blue-50 border border-blue-200 rounded-md">
+                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between">
+                    <div class="flex items-center mb-4 sm:mb-0">
+                        <svg class="w-10 h-10 text-blue-500 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M18 5v8a2 2 0 01-2 2h-5l-5 4v-4H4a2 2 0 01-2-2V5a2 2 0 012-2h12a2 2 0 012 2zM7 8H5v2h2V8zm2 0h2v2H9V8zm6 0h-2v2h2V8z" clip-rule="evenodd"></path>
+                        </svg>
+                        <div>
+                            <h3 class="text-lg font-semibold text-blue-800">You've been invited to join this trip!</h3>
+                            <p class="text-sm text-blue-600">
+                                Invitation from <span class="font-medium" th:text="${invitation.invitedBy.firstName + ' ' + invitation.invitedBy.lastName}">Inviter Name</span>
+                                <span th:if="${invitation.message}" class="italic ml-1">: "<span th:text="${invitation.message}">message</span>"</span>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="flex space-x-2">
+                        <form th:action="@{'/invitations/' + ${invitation.id} + '/accept'}" method="post">
+                            <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-md text-sm font-medium hover:bg-green-700 transition duration-150">
+                                <i class="fas fa-check mr-1"></i> Accept
+                            </button>
+                        </form>
+                        <form th:action="@{'/invitations/' + ${invitation.id} + '/decline'}" method="post">
+                            <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-md text-sm font-medium hover:bg-red-700 transition duration-150">
+                                <i class="fas fa-times mr-1"></i> Decline
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Trip Content -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Main Content -->
+                <div class="lg:col-span-2 space-y-8">
+                    <!-- Trip Details Card -->
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <h2 class="text-xl font-semibold text-gray-900 mb-4">
+                            <i class="fas fa-info-circle text-blue-500 mr-2"></i>
+                            Trip Details
+                        </h2>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide mb-2">Start Date & Time</h3>
+                                <p class="text-lg text-gray-900">
+                                    <i class="fas fa-calendar-alt text-green-500 mr-2"></i>
+                                    <span th:text="${#temporals.format(trip.startDateTime, 'EEEE, MMMM dd, yyyy')}">Start Date</span>
+                                </p>
+                                <p class="text-sm text-gray-600 ml-6" th:text="${#temporals.format(trip.startDateTime, 'HH:mm')}">Start Time</p>
+                            </div>
+                            
+                            <div>
+                                <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide mb-2">End Date & Time</h3>
+                                <p class="text-lg text-gray-900">
+                                    <i class="fas fa-calendar-check text-red-500 mr-2"></i>
+                                    <span th:text="${#temporals.format(trip.endDateTime, 'EEEE, MMMM dd, yyyy')}">End Date</span>
+                                </p>
+                                <p class="text-sm text-gray-600 ml-6" th:text="${#temporals.format(trip.endDateTime, 'HH:mm')}">End Time</p>
+                            </div>
+                            
+                            <div>
+                                <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide mb-2">Duration</h3>
+                                <p class="text-lg text-gray-900">
+                                    <i class="fas fa-clock text-purple-500 mr-2"></i>
+                                    <span th:text="${trip.durationDays + ' day' + (trip.durationDays != 1 ? 's' : '')}">Duration</span>
+                                </p>
+                            </div>
+                            
+                            <div>
+                                <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide mb-2">Last Updated</h3>
+                                <p class="text-lg text-gray-900">
+                                    <i class="fas fa-edit text-orange-500 mr-2"></i>
+                                    <span th:text="${#temporals.format(trip.updatedAt, 'MMM dd, yyyy HH:mm')}">Updated</span>
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="mt-6" th:if="${trip.description != null and !trip.description.empty}">
+                            <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide mb-2">Description</h3>
+                            <p class="text-gray-700 whitespace-pre-wrap" th:text="${trip.description}">Trip description</p>
+                        </div>
+
+                        <!-- Notes -->
+                        <div class="mt-6" th:if="${trip.notes != null and !trip.notes.empty}">
+                            <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide mb-2">Notes</h3>
+                            <p class="text-gray-700 whitespace-pre-wrap" th:text="${trip.notes}">Trip notes</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sidebar -->
+                <div class="space-y-6">
+                    <!-- Participants Card -->
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                            <i class="fas fa-users text-green-500 mr-2"></i>
+                            Participants
+                            <span class="text-sm font-normal text-gray-500 ml-2" th:text="'(' + ${trip.totalParticipants} + ')'">Count</span>
+                        </h3>
+
+                        <div th:if="${trip.participants != null and !trip.participants.empty}">
+                            <div th:each="participant : ${trip.participants}" class="flex items-center space-x-3 mb-3 last:mb-0">
+                                <div class="flex-shrink-0">
+                                    <div class="h-8 w-8 bg-blue-500 rounded-full flex items-center justify-center">
+                                        <span class="text-white text-sm font-medium" 
+                                              th:text="${participant.firstName.substring(0,1) + participant.lastName.substring(0,1)}">UN</span>
+                                    </div>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-sm font-medium text-gray-900 truncate" 
+                                       th:text="${participant.firstName + ' ' + participant.lastName}">Name</p>
+                                    <p class="text-xs text-gray-500 truncate" th:text="${participant.email}">Email</p>
+                                </div>
+                                <div th:if="${trip.admins.contains(participant)}" class="flex-shrink-0">
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                                        <i class="fas fa-crown mr-1"></i>
+                                        Admin
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div th:unless="${trip.participants != null and !trip.participants.empty}" class="text-center py-4">
+                            <div class="text-gray-400 mb-2">
+                                <i class="fas fa-user-plus text-2xl"></i>
+                            </div>
+                            <p class="text-sm text-gray-500">No participants yet</p>
+                        </div>
+                    </div>
+
+                    <!-- Quick Stats Card -->
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                            <i class="fas fa-chart-bar text-purple-500 mr-2"></i>
+                            Quick Stats
+                        </h3>
+                        
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-gray-600">Duration</span>
+                                <span class="text-sm font-medium text-gray-900" 
+                                      th:text="${trip.durationDays + ' day' + (trip.durationDays != 1 ? 's' : '')}">Days</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-gray-600">Participants</span>
+                                <span class="text-sm font-medium text-gray-900" th:text="${trip.totalParticipants}">Count</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-gray-600">Planned Days</span>
+                                <span class="text-sm font-medium text-gray-900" th:text="${trip.totalDays}">Count</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-gray-600">Status</span>
+                                <span class="text-sm font-medium text-gray-900" th:text="${trip.status.displayName}">Status</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

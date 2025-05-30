@@ -21,111 +21,183 @@
         .gradient-bg {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
+        
+        .sidebar-transition {
+            transition: all 0.3s ease-in-out;
+        }
     </style>
 </head>
-<body class="bg-gray-50 min-h-screen flex flex-col">
-    <!-- Navigation Bar -->
-    <nav class="bg-white shadow-lg sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
-                <!-- Logo -->
-                <div class="flex items-center">
-                    <a href="/" class="flex items-center space-x-2">
-                        <svg class="h-8 w-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
-                        </svg>
-                        <span class="text-xl font-bold text-gray-800">SiW Trips</span>
-                    </a>
-                </div>
-                
-                <!-- Navigation Links -->
-                <div class="hidden md:block">
-                    <div class="ml-10 flex items-baseline space-x-4">
-                        <a href="/" class="text-gray-600 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition duration-150">Home</a>
+<body class="bg-gray-50 min-h-screen flex">
+    <!-- Sidebar -->
+    <aside class="bg-white shadow-lg w-64 min-h-screen fixed md:static z-40 sidebar-transition transform -translate-x-full md:translate-x-0 flex flex-col" id="sidebar">
+        <!-- Logo -->
+        <div class="flex items-center px-6 py-4 border-b border-gray-200">
+            <a href="/" class="flex items-center space-x-2">
+                <svg class="h-8 w-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
+                </svg>
+                <span class="text-xl font-bold text-gray-800">SiW Trips</span>
+            </a>
+        </div>
+        
+        <!-- Main Navigation -->
+        <nav class="px-4 py-6 space-y-2">
+            <a href="/" class="flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition duration-150">
+                <i class="fas fa-home w-5 text-center mr-3"></i>
+                <span>Home</span>
+            </a>
+            
+            <div th:if="${session.loggedInUser}">
+                <a href="/trips" class="flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition duration-150">
+                    <i class="fas fa-map-marked-alt w-5 text-center mr-3"></i>
+                    <span>All Trips</span>
+                </a>
+                <a href="/invitations" class="flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition duration-150">
+                    <i class="fas fa-envelope w-5 text-center mr-3"></i>
+                    <span>Invitations</span>
+                </a>
+            </div>
+        </nav>
+
+        <!-- My Trips Section -->
+        <div th:if="${session.loggedInUser}" class="flex-1 px-4 py-4 border-t border-gray-200">
+            <div class="mb-4">
+                <h3 class="px-4 text-sm font-semibold text-gray-700 uppercase tracking-wider flex items-center">
+                    <i class="fas fa-route w-5 text-center mr-2 text-blue-600"></i>
+                    My Trips
+                </h3>
+            </div>
+            
+            <!-- User's trips will be populated by the controller -->
+            <div class="space-y-2 max-h-64 overflow-y-auto" th:if="${userTrips != null and !userTrips.empty}">
+                <a th:each="trip : ${userTrips}" 
+                   th:href="@{'/itinerary/' + ${trip.id}}" 
+                   class="flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition duration-150 group">
+                    <div class="w-3 h-3 rounded-full mr-3 flex-shrink-0" 
+                         th:class="${trip.status.name() == 'PLANNING' ? 'bg-yellow-400' : 
+                                   trip.status.name() == 'CONFIRMED' ? 'bg-blue-400' : 
+                                   trip.status.name() == 'ONGOING' ? 'bg-green-400' : 
+                                   trip.status.name() == 'COMPLETED' ? 'bg-gray-400' : 
+                                   'bg-red-400'}"></div>
+                    <span class="truncate font-medium" th:text="${trip.name}">Trip Name</span>
+                    <div class="ml-auto flex-shrink-0" th:if="${trip.admins.contains(session.loggedInUser)}">
+                        <i class="fas fa-crown text-sm text-yellow-500 group-hover:text-yellow-600"></i>
                     </div>
+                </a>
+            </div>
+            
+            <!-- Empty state for trips -->
+            <div th:unless="${userTrips != null and !userTrips.empty}" class="px-4 py-6 text-center">
+                <div class="text-gray-400 mb-3">
+                    <i class="fas fa-map text-2xl"></i>
                 </div>
-                
-                <!-- User Menu -->
-                <div class="hidden md:block">
-                    <div class="ml-4 flex items-center md:ml-6 space-x-4">
-                        <!-- Logged in user menu -->
-                        <div th:if="${session.loggedInUser}" class="flex items-center space-x-4">
-                            <span class="text-sm text-gray-700">
-                                Welcome, <span class="font-medium" th:text="${session.loggedInUser.firstName}">User</span>!
-                            </span>
-                            <a href="/logout" class="bg-red-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-red-700 transition duration-150">Logout</a>
-                        </div>
-                        <!-- Guest user menu -->
-                        <div th:unless="${session.loggedInUser}" class="flex items-center space-x-4">
-                            <a href="/login" class="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition duration-150">Login</a>
-                            <a href="/register" class="border border-blue-600 text-blue-600 px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-50 transition duration-150">Register</a>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Mobile menu button -->
-                <div class="md:hidden">
-                    <button type="button" class="bg-gray-50 inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100" id="mobile-menu-button">
-                        <svg class="block h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-                        </svg>
-                    </button>
-                </div>
+                <p class="text-sm text-gray-500 mb-2">No trips yet</p>
+                <a href="/trips" class="text-sm text-blue-600 hover:text-blue-800 font-medium transition duration-150">Create your first trip</a>
+                <p class="text-sm text-gray-500 mb-2">or</p>
+                <a href="/invitations" class="text-sm text-blue-600 hover:text-blue-800 font-medium transition duration-150">Check invites</a>
             </div>
         </div>
         
-        <!-- Mobile menu -->
-        <div class="md:hidden hidden" id="mobile-menu">
-            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white border-t">
-                <a href="/" class="text-gray-600 hover:text-blue-600 block px-3 py-2 rounded-md text-base font-medium">Home</a>
-                <div class="border-t pt-4 mt-4">
-                    <!-- Logged in user mobile menu -->
-                    <div th:if="${session.loggedInUser}">
-                        <p class="text-sm text-gray-600 px-3 mb-2">
-                            Welcome, <span class="font-medium" th:text="${session.loggedInUser.firstName}">User</span>!
-                        </p>
-                        <a href="/logout" class="block bg-red-600 text-white px-3 py-2 rounded-md text-base font-medium">Logout</a>
+        <!-- User Profile Section -->
+        <div class="px-4 py-4 border-t border-gray-200 mt-auto">
+            <!-- Logged in user -->
+            <div th:if="${session.loggedInUser}" class="space-y-3">
+                <div class="flex items-center space-x-3 px-4 py-2">
+                    <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white text-sm font-semibold">
+                        <span th:text="${session.loggedInUser.firstName?.substring(0,1)?.toUpperCase()}">U</span>
                     </div>
-                    <!-- Guest user mobile menu -->
-                    <div th:unless="${session.loggedInUser}">
-                        <a href="/login" class="block bg-blue-600 text-white px-3 py-2 rounded-md text-base font-medium mb-2">Login</a>
-                        <a href="/register" class="block border border-blue-600 text-blue-600 px-3 py-2 rounded-md text-base font-medium">Register</a>
+                    <div class="flex-1">
+                        <p class="text-sm font-medium text-gray-900" th:text="${session.loggedInUser.firstName + ' ' + session.loggedInUser.lastName}">User Name</p>
+                        <p class="text-xs text-gray-500" th:text="${session.loggedInUser.credentials.username}">username</p>
                     </div>
                 </div>
+                <a href="/logout" class="flex items-center w-full px-4 py-2 text-red-600 rounded-lg hover:bg-red-50 transition duration-150">
+                    <i class="fas fa-sign-out-alt w-5 text-center mr-3"></i>
+                    <span>Logout</span>
+                </a>
+            </div>
+            
+            <!-- Guest user -->
+            <div th:unless="${session.loggedInUser}" class="space-y-2">
+                <a href="/login" class="flex items-center w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-150">
+                    <i class="fas fa-sign-in-alt w-5 text-center mr-3"></i>
+                    <span>Login</span>
+                </a>
+                <a href="/register" class="flex items-center w-full px-4 py-2 border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition duration-150">
+                    <i class="fas fa-user-plus w-5 text-center mr-3"></i>
+                    <span>Register</span>
+                </a>
             </div>
         </div>
-    </nav>
-
-    <!-- Main Content -->
-    <main th:insert="${content}" class="flex-grow">
-        <!-- This will be replaced by specific page content -->
-    </main>
-
-    <!-- Footer -->
-    <footer class="bg-gray-800 text-white mt-12">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div>
-                    <h3 class="text-lg font-semibold mb-4">SiW Trips</h3>
-                    <p class="text-gray-300">Your premier destination for trip planning.</p>
-                </div>
-                <div>
-                    <h3 class="text-lg font-semibold mb-4">Contacts</h3>
-                    <p class="text-gray-300">Email: ismar.costabile@icloud</p>
-                    <p class="text-gray-300">Phone: +39 345 9376977</p>
-                </div>
-            </div>
-            <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
-                <p>&copy; 2025 SiW Trips. All rights reserved.</p>
-            </div>
-        </div>
-    </footer>
+    </aside>
     
-    <!-- Mobile menu toggle script -->
+    <!-- Mobile sidebar overlay -->
+    <div class="fixed inset-0 bg-black bg-opacity-50 z-30 md:hidden hidden" id="sidebar-overlay"></div>
+    
+    <!-- Main Content Area -->
+    <div class="flex-1 flex flex-col min-h-screen">
+        <!-- Top bar for mobile -->
+        <header class="bg-white shadow-sm px-4 py-3 md:hidden flex items-center justify-between">
+            <button type="button" class="text-gray-600 hover:text-gray-900" id="mobile-sidebar-button">
+                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                </svg>
+            </button>
+            <h1 class="text-lg font-semibold text-gray-900" th:text="${title}">SiW Trips</h1>
+            <div class="w-6"></div> <!-- Spacer for centering -->
+        </header>
+        
+        <!-- Main Content -->
+        <main th:insert="${content}" class="flex-1 p-4 md:p-6 overflow-auto">
+            <!-- This will be replaced by specific page content -->
+        </main>
+
+        
+        <!-- Footer -->
+        <footer class="bg-gray-800 text-white mt-auto">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="text-lg font-semibold mb-4">SiW Trips</h3>
+                        <p class="text-gray-300">Your premier destination for trip planning.</p>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold mb-4">Contacts</h3>
+                        <p class="text-gray-300">Email: ismar.costabile@icloud</p>
+                        <p class="text-gray-300">Phone: +39 345 9376977</p>
+                    </div>
+                </div>
+                <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
+                    <p>&copy; 2025 SiW Trips. All rights reserved.</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+    
+    <!-- JavaScript for sidebar toggle -->
     <script>
-        document.getElementById('mobile-menu-button').addEventListener('click', function() {
-            const mobileMenu = document.getElementById('mobile-menu');
-            mobileMenu.classList.toggle('hidden');
+        const sidebarButton = document.getElementById('mobile-sidebar-button');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebar-overlay');
+        
+        function toggleSidebar() {
+            sidebar.classList.toggle('-translate-x-full');
+            overlay.classList.toggle('hidden');
+        }
+        
+        sidebarButton?.addEventListener('click', toggleSidebar);
+        overlay?.addEventListener('click', toggleSidebar);
+        
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', function(event) {
+            if (window.innerWidth < 768) { // Only on mobile
+                const isClickInsideSidebar = sidebar.contains(event.target);
+                const isClickOnButton = sidebarButton?.contains(event.target);
+                
+                if (!isClickInsideSidebar && !isClickOnButton && !sidebar.classList.contains('-translate-x-full')) {
+                    toggleSidebar();
+                }
+            }
         });
     </script>
 </body>

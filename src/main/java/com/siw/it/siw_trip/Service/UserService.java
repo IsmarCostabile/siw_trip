@@ -47,5 +47,13 @@ public class UserService {
         return userRepository.findByNameContaining(name);
     }
 
+    /**
+     * Find user by ID and throw exception if not found
+     * This method simplifies controller code by handling Optional extraction
+     */
+    public User findByIdOrThrow(Long id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + id));
+    }
 
 }

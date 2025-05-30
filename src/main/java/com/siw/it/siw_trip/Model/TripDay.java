@@ -29,7 +29,7 @@ public class TripDay implements Serializable {
     private Trip trip;
 
     @OneToMany(mappedBy = "tripDay", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @OrderBy("visitOrder ASC")
+    @OrderBy("startTime ASC")
     private List<Visit> visits = new ArrayList<>();
 
     @OneToOne(fetch = FetchType.LAZY)
@@ -124,18 +124,13 @@ public class TripDay implements Serializable {
     public void addVisit(Visit visit) {
         visits.add(visit);
         visit.setTripDay(this);
-        if (visit.getVisitOrder() == null) {
-            visit.setVisitOrder(visits.size());
-        }
+        // Visits will be ordered by start time automatically
     }
 
     public void removeVisit(Visit visit) {
         visits.remove(visit);
         visit.setTripDay(null);
-        // Reorder remaining visits
-        for (int i = 0; i < visits.size(); i++) {
-            visits.get(i).setVisitOrder(i + 1);
-        }
+        // No need to reorder since ordering is by start time
     }
 
     public String getDestinationName() {

@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(~{::title}, ~{::main})}">
+<head>
+    <title th:text="${'Add Visit to ' + trip.name + ' - SiW Trips'}">Add Visit - SiW Trips</title>
+</head>
+<body>
+    <main>
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <!-- Header -->
+            <div class="mb-8">
+                <nav class="flex items-center space-x-2 text-sm text-gray-500 mb-4" aria-label="Breadcrumb navigation">
+                    <a href="/trips" class="hover:text-blue-600">All Trips</a>
+                    <i class="fas fa-chevron-right text-xs"></i>
+                    <a th:href="@{'/trips/' + ${trip.id}}" class="hover:text-blue-600" th:text="${trip.name}">Trip Name</a>
+                    <i class="fas fa-chevron-right text-xs"></i>
+                    <a th:href="@{'/trips/' + ${trip.id} + '/itinerary'}" class="hover:text-blue-600">Itinerary</a>
+                    <i class="fas fa-chevron-right text-xs"></i>
+                    <span class="text-gray-900">Add Visit</span>
+                </nav>
+
+                <h1 class="text-3xl font-bold text-gray-900 mb-2">Add Visit</h1>
+                <p class="text-gray-600">
+                    Adding visit to <span th:text="${#temporals.format(tripDay.date, 'EEEE, MMM dd')}">Day</span>
+                    <span th:if="${tripDay.description}" class="text-gray-500">
+                        - <span th:text="${tripDay.description}">Day description</span>
+                    </span>
+                </p>
+            </div>
+
+            <!-- Messages -->
+            <div th:if="${errorMessage}" class="mb-6 p-4 bg-red-50 border border-red-200 rounded-md">
+                <div class="flex items-center">
+                    <svg class="w-5 h-5 text-red-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+                    </svg>
+                    <p class="text-sm text-red-600" th:text="${errorMessage}">Error message</p>
+                </div>
+            </div>
+
+            <!-- Form -->
+            <div class="bg-white shadow-md rounded-lg p-6">
+                <form th:action="@{'/trips/' + ${trip.id} + '/days/' + ${tripDay.id} + '/visits'}" 
+                      th:object="${visit}" method="post" class="space-y-6">
+                    
+                    <!-- Visit Name -->
+                    <div>
+                        <label for="name" class="block text-sm font-medium text-gray-700 mb-2">Visit Name *</label>
+                        <input type="text" id="name" th:field="*{name}" required
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                               placeholder="Enter visit name">
+                        <div th:if="${#fields.hasErrors('name')}" class="mt-1 text-sm text-red-600" th:errors="*{name}"></div>
+                    </div>
+
+                    <!-- Location Information -->
+                    <div class="space-y-4">
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">Location Information</h3>
+                        
+                        <!-- Location Name -->
+                        <div>
+                            <label for="locationName" class="block text-sm font-medium text-gray-700 mb-2">Location Name *</label>
+                            <input type="text" id="locationName" name="locationName" required
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                   placeholder="Enter location name (e.g., Eiffel Tower, Central Park)">
+                        </div>
+
+                        <!-- Address -->
+                        <div>
+                            <label for="locationAddress" class="block text-sm font-medium text-gray-700 mb-2">Address *</label>
+                            <input type="text" id="locationAddress" name="locationAddress" required
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                   placeholder="Enter street address">
+                        </div>
+
+                        <!-- City and Country -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label for="locationCity" class="block text-sm font-medium text-gray-700 mb-2">City *</label>
+                                <input type="text" id="locationCity" name="locationCity" required
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                       placeholder="Enter city">
+                            </div>
+                            <div>
+                                <label for="locationCountry" class="block text-sm font-medium text-gray-700 mb-2">Country</label>
+                                <input type="text" id="locationCountry" name="locationCountry"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                       placeholder="Enter country">
+                            </div>
+                        </div>
+
+                        <!-- Coordinates -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label for="latitude" class="block text-sm font-medium text-gray-700 mb-2">Latitude *</label>
+                                <input type="number" id="latitude" name="latitude" step="any" required
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                       placeholder="e.g., 48.8584" min="-90" max="90">
+                                <p class="mt-1 text-sm text-gray-500">Range: -90 to 90</p>
+                            </div>
+                            <div>
+                                <label for="longitude" class="block text-sm font-medium text-gray-700 mb-2">Longitude *</label>
+                                <input type="number" id="longitude" name="longitude" step="any" required
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                       placeholder="e.g., 2.2945" min="-180" max="180">
+                                <p class="mt-1 text-sm text-gray-500">Range: -180 to 180</p>
+                            </div>
+                        </div>
+
+                        <!-- Location Description -->
+                        <div>
+                            <label for="locationDescription" class="block text-sm font-medium text-gray-700 mb-2">Location Description</label>
+                            <textarea id="locationDescription" name="locationDescription" rows="2"
+                                      class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                      placeholder="Brief description of the location..."></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Date Range -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="startTime" class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-calendar-alt text-green-500 mr-1"></i>
+                                Start Date & Time *
+                            </label>
+                            <input type="datetime-local" 
+                                   id="startTime" 
+                                   th:field="*{startTime}"
+                                   required
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+
+                        <div>
+                            <label for="endTime" class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-calendar-check text-red-500 mr-1"></i>
+                                End Date & Time *
+                            </label>
+                            <input type="datetime-local" 
+                                   id="endTime" 
+                                   th:field="*{endTime}"
+                                   required
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                    </div>
+
+
+
+                    <!-- Estimated Duration -->
+                    <div>
+                        <label for="estimatedDurationMinutes" class="block text-sm font-medium text-gray-700 mb-2">Estimated Duration (minutes)</label>
+                        <input type="number" id="estimatedDurationMinutes" th:field="*{estimatedDurationMinutes}" min="0" step="15"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                               placeholder="e.g., 90">
+                        <div th:if="${#fields.hasErrors('estimatedDurationMinutes')}" class="mt-1 text-sm text-red-600" th:errors="*{estimatedDurationMinutes}"></div>
+                    </div>
+
+                    <!-- Description -->
+                    <div>
+                        <label for="description" class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                        <textarea id="description" th:field="*{description}" rows="3"
+                                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                  placeholder="Describe what you'll do at this location..."></textarea>
+                        <div th:if="${#fields.hasErrors('description')}" class="mt-1 text-sm text-red-600" th:errors="*{description}"></div>
+                    </div>
+
+                    <!-- Notes -->
+                    <div>
+                        <label for="notes" class="block text-sm font-medium text-gray-700 mb-2">Notes</label>
+                        <textarea id="notes" th:field="*{notes}" rows="2"
+                                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                  placeholder="Any additional notes or reminders..."></textarea>
+                        <div th:if="${#fields.hasErrors('notes')}" class="mt-1 text-sm text-red-600" th:errors="*{notes}"></div>
+                    </div>
+
+                    <!-- Form Actions -->
+                    <div class="flex items-center justify-end space-x-3 pt-6 border-t border-gray-200">
+                        <a th:href="@{'/trips/' + ${trip.id} + '/itinerary'}" 
+                           class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150">
+                            Cancel
+                        </a>
+                        <button type="submit" 
+                                class="px-4 py-2 border border-transparent rounded-md text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150">
+                            <i class="fas fa-plus mr-2"></i>
+                            Add Visit
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

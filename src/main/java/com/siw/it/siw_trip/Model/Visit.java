@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "visits")
-public class Visit implements Serializable {
+public class Visit implements Serializable, Comparable<Visit> {
     private static final long serialVersionUID = 1L;
 
     @Id
@@ -38,9 +38,6 @@ public class Visit implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "trip_day_id", referencedColumnName = "id")
     private TripDay tripDay;
-
-    @Column(name = "visit_order")
-    private Integer visitOrder;
 
     // Default constructor
     public Visit() {}
@@ -132,14 +129,6 @@ public class Visit implements Serializable {
         this.tripDay = tripDay;
     }
 
-    public Integer getVisitOrder() {
-        return visitOrder;
-    }
-
-    public void setVisitOrder(Integer visitOrder) {
-        this.visitOrder = visitOrder;
-    }
-
     // Helper methods
     public boolean hasScheduledTime() {
         return startTime != null && endTime != null;
@@ -150,6 +139,33 @@ public class Visit implements Serializable {
             return java.time.Duration.between(startTime, endTime).toMinutes();
         }
         return 0;
+    }
+
+    @Override
+    public int compareTo(Visit other) {
+        if (this.startTime == null && other.startTime == null) {
+            return 0;
+        }
+        if (this.startTime == null) {
+            return 1; // Visits without start time come last
+        }
+        if (other.startTime == null) {
+            return -1; // Visits with start time come first
+        }
+        return this.startTime.compareTo(other.startTime);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        Visit visit = (Visit) obj;
+        return id != null && id.equals(visit.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return id != null ? id.hashCode() : 0;
     }
 
     @Override

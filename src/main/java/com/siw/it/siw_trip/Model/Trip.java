@@ -49,10 +49,6 @@ public class Trip implements Serializable {
     @OrderBy("dayNumber ASC")
     private List<TripDay> tripDays = new ArrayList<>();
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "created_by_user_id", referencedColumnName = "id")
-    private User createdBy;
-
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
@@ -62,9 +58,6 @@ public class Trip implements Serializable {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private TripStatus status;
-
-    @Column(name = "estimated_budget")
-    private Double estimatedBudget;
 
     @Column(length = 1000)
     private String notes;
@@ -77,14 +70,14 @@ public class Trip implements Serializable {
     }
 
     // Constructor
-    public Trip(String name, LocalDateTime startDateTime, LocalDateTime endDateTime, User createdBy) {
+    public Trip(String name, LocalDateTime startDateTime, LocalDateTime endDateTime, User creator) {
         this();
         this.name = name;
         this.startDateTime = startDateTime;
         this.endDateTime = endDateTime;
-        this.createdBy = createdBy;
-        // Creator is automatically an admin
-        this.admins.add(createdBy);
+        // Creator is automatically an admin and participant
+        this.admins.add(creator);
+        this.participants.add(creator);
     }
 
     // Getters and Setters
@@ -159,14 +152,6 @@ public class Trip implements Serializable {
         this.updatedAt = LocalDateTime.now();
     }
 
-    public User getCreatedBy() {
-        return createdBy;
-    }
-
-    public void setCreatedBy(User createdBy) {
-        this.createdBy = createdBy;
-    }
-
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
@@ -192,15 +177,6 @@ public class Trip implements Serializable {
         this.updatedAt = LocalDateTime.now();
     }
 
-    public Double getEstimatedBudget() {
-        return estimatedBudget;
-    }
-
-    public void setEstimatedBudget(Double estimatedBudget) {
-        this.estimatedBudget = estimatedBudget;
-        this.updatedAt = LocalDateTime.now();
-    }
-
     public String getNotes() {
         return notes;
     }
@@ -219,9 +195,8 @@ public class Trip implements Serializable {
     public void removeParticipant(User user) {
         participants.remove(user);
         // If user was an admin, remove from admins as well
-        if (admins.contains(user) && !user.equals(createdBy)) {
-            admins.remove(user);
-        }
+        // Note: Since we no longer track creator separately, any admin can be removed
+        admins.remove(user);
         this.updatedAt = LocalDateTime.now();
     }
 
@@ -233,11 +208,9 @@ public class Trip implements Serializable {
     }
 
     public void removeAdmin(User user) {
-        // Cannot remove the creator from admins
-        if (!user.equals(createdBy)) {
-            admins.remove(user);
-            this.updatedAt = LocalDateTime.now();
-        }
+        // Since we no longer track creator separately, any admin can be removed
+        admins.remove(user);
+        this.updatedAt = LocalDateTime.now();
     }
 
     public void addTripDay(TripDay tripDay) {
@@ -265,10 +238,6 @@ public class Trip implements Serializable {
 
     public boolean isUserParticipant(User user) {
         return participants.contains(user);
-    }
-
-    public boolean isUserCreator(User user) {
-        return user.equals(createdBy);
     }
 
     public long getDurationDays() {
