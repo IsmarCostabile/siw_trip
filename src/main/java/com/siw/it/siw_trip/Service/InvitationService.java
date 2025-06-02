@@ -155,4 +155,24 @@ public class InvitationService {
     public List<Invitation> getInvitationsForTripsWhereUserIsAdmin(User user) {
         return invitationRepository.findInvitationsForTripsWhereUserIsAdmin(user);
     }
+
+    /**
+     * Cancel an invitation for a specific user and trip
+     */
+    @Transactional
+    public void cancelInvitation(User user, Trip trip, User requestingUser) {
+        Optional<Invitation> invitation = invitationRepository.findByUserAndTrip(user, trip);
+        if (invitation.isEmpty()) {
+            throw new IllegalArgumentException("No invitation found for this user and trip");
+        }
+        
+        Invitation inv = invitation.get();
+        // Only the invitation recipient or the person who sent it can delete it
+        if (!inv.getUser().equals(requestingUser) && 
+            !inv.getInvitedBy().equals(requestingUser)) {
+            throw new IllegalArgumentException("User is not authorized to delete this invitation");
+        }
+
+        invitationRepository.delete(inv);
+    }
 }

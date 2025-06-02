@@ -20,11 +20,7 @@ public class HomeViewController {
     public String home(Model model) {
         int totalUsers = userService.findAll().size();
         model.addAttribute("totalUsers", totalUsers);
-        return "index";
+        return "auth/login";
     }
 
-    @GetMapping("/home")
-    public String homepage(Model model) {
-        return home(model); // Delegate to home method to avoid code duplication
-    }
 }

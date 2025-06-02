@@ -2,102 +2,6 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(~{::title}, ~{::main})}">
 <head>
     <title th:text="${trip.name + ' - Itinerary - SiW Trips'}">Trip Itinerary - SiW Trips</title>
-    <style>
-        /* Line clamp utilities with compatibility */
-        .line-clamp-1, .line-clamp-2 {
-            display: -webkit-box;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-        .line-clamp-1 { 
-            -webkit-line-clamp: 1; 
-            line-clamp: 1; 
-        }
-        .line-clamp-2 { 
-            -webkit-line-clamp: 2; 
-            line-clamp: 2; 
-        }
-
-        /* Layout */
-        .trip-days-wrapper {
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        /* Trip day cards */
-        .trip-day-card {
-            width: 100%;
-            min-height: 200px;
-        }
-
-        /* Route tiles with gradient and arrow */
-        .route-tile {
-            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-            border: 1px solid #0ea5e9;
-            border-radius: 8px;
-            margin: 8px 0;
-            padding: 12px;
-            font-size: 0.75rem;
-            position: relative;
-            box-shadow: 0 1px 3px rgba(14, 165, 233, 0.1);
-            transition: all 0.15s ease;
-        }
-        .route-tile:hover {
-            box-shadow: 0 2px 6px rgba(14, 165, 233, 0.15);
-            transform: translateY(-1px);
-        }
-        .route-tile::before {
-            content: '';
-            position: absolute;
-            left: 16px;
-            top: -6px;
-            border-left: 5px solid transparent;
-            border-right: 5px solid transparent;
-            border-bottom: 6px solid #0ea5e9;
-        }
-
-        /* Transport icons and action buttons */
-        .transport-icon, .visit-action-btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            text-decoration: none;
-        }
-        
-        .transport-icon {
-            width: 24px;
-            height: 24px;
-            font-size: 11px;
-            margin-right: 8px;
-            color: white;
-        }
-        
-        .visit-action-btn {
-            width: 28px;
-            height: 28px;
-            border-radius: 6px;
-            transition: transform 0.15s ease;
-        }
-        .visit-action-btn:hover { transform: scale(1.05); }
-
-        .visit-actions { 
-            display: flex; 
-            align-items: center; 
-            gap: 8px; 
-        }
-
-        /* Transport mode colors */
-        .transport-walking { background-color: #10b981; }
-        .transport-driving { background-color: #3b82f6; }
-        .transport-public { background-color: #8b5cf6; }
-        .transport-cycling { background-color: #f59e0b; }
-        .transport-taxi { background-color: #ef4444; }
-        .transport-other { background-color: #6b7280; }
-    </style>
 </head>
 <body>
     <main>
@@ -167,64 +71,56 @@
                 <!-- Trip Days -->
                 <div th:if="${trip.tripDays != null and !trip.tripDays.isEmpty()}">
                     <div class="trip-days-container">
-                        <div class="trip-days-wrapper">
+                        <div class="trip-days-wrapper space-y-6">
                             <div th:each="tripDay, dayStats : ${trip.tripDays}" class="trip-day-card bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden flex flex-col">
                                 <!-- Day Header -->
                                 <div class="bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-3 border-b border-gray-200 flex-shrink-0">
                                     <div class="flex flex-col space-y-2">
                                         <div class="flex justify-between items-start">
-                                            <h3 class="text-base font-semibold text-gray-900">
-                                                <span th:text="'Day ' + ${dayStats.count}">Day 1</span>
-                                            </h3>
+                                            <div class="flex items-center space-x-4">
+                                                <h3 class="text-base font-semibold text-gray-900">
+                                                    <span th:text="'Day ' + ${dayStats.count}">Day 1</span>
+                                                </h3>
+                                                <!-- Destination Information -->
+                                                <div th:if="${tripDay.destination}" class="flex items-center text-sm text-green-700">
+                                                    <i class="fas fa-map-marker-alt mr-1"></i>
+                                                    <span th:text="${tripDay.destination.name}">Destination Name</span>
+                                                    <div th:if="${trip.admins.contains(session.loggedInUser)}" class="ml-2">
+                                                        <a th:href="@{'/trips/' + ${trip.id} + '/days/' + ${tripDay.id} + '/destination/select'}"
+                                                           class="inline-flex items-center px-1 py-0.5 border border-transparent text-xs font-medium rounded text-green-600 bg-green-50 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-150"
+                                                           title="Change destination">
+                                                            <i class="fas fa-edit text-xs"></i>
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                                <div th:if="${tripDay.destination == null}" class="flex items-center text-sm text-gray-500">
+                                                    <i class="fas fa-map-marker-alt mr-1"></i>
+                                                    <span class="mr-2">No destination set</span>
+                                                    <div th:if="${trip.admins.contains(session.loggedInUser)}">
+                                                        <a th:href="@{'/trips/' + ${trip.id} + '/days/' + ${tripDay.id} + '/destination/select'}"
+                                                           class="inline-flex items-center px-2 py-1 border border-transparent text-xs font-medium rounded-md text-green-600 bg-green-50 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-150">
+                                                            <i class="fas fa-plus mr-1"></i>
+                                                            Select Destination
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>
                                             <!-- Add Visit Button -->
                                             <div th:if="${trip.admins.contains(session.loggedInUser)}">
                                                 <a th:href="@{'/trips/' + ${trip.id} + '/days/' + ${tripDay.id} + '/locations/new'}"
                                                    class="inline-flex items-center px-2 py-1 border border-transparent text-xs font-medium rounded-md text-blue-600 bg-blue-50 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150">
                                                     <i class="fas fa-plus mr-1"></i>
-                                                    Add
+                                                    Add Visit
                                                 </a>
                                             </div>
                                         </div>
                                         <div class="text-sm text-gray-600" th:text="${#temporals.format(tripDay.date, 'EEEE, MMM dd')}">Date</div>
                                         <p th:if="${tripDay.description}" class="text-xs text-gray-600 mt-1" th:text="${tripDay.description}">Day description</p>
-                                        
-                                        <!-- Destination Information -->
-                                        <div class="mt-2">
-                                            <div th:if="${tripDay.destination}" class="flex items-center justify-between">
-                                                <div class="flex items-center text-sm text-green-700">
-                                                    <i class="fas fa-map-marker-alt mr-1"></i>
-                                                    <span class="font-medium">Destination:</span>
-                                                    <span th:text="${tripDay.destination.name}" class="ml-1">Destination Name</span>
-                                                </div>
-                                                <div th:if="${trip.admins.contains(session.loggedInUser)}" class="flex space-x-1">
-                                                    <a th:href="@{'/trips/' + ${trip.id} + '/days/' + ${tripDay.id} + '/destination/select'}"
-                                                       class="inline-flex items-center px-2 py-1 border border-transparent text-xs font-medium rounded-md text-green-600 bg-green-50 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-150"
-                                                       title="Change destination">
-                                                        <i class="fas fa-edit text-xs"></i>
-                                                    </a>
-                                                </div>
-                                            </div>
-                                            <div th:if="${tripDay.destination == null}" th:with="hasVisits=${tripDay.visits != null and !tripDay.visits.isEmpty()}">
-                                                <div th:if="${trip.admins.contains(session.loggedInUser)}" class="flex items-center text-sm text-gray-500">
-                                                    <i class="fas fa-map-marker-alt mr-1"></i>
-                                                    <span class="mr-2">No destination set</span>
-                                                    <a th:href="@{'/trips/' + ${trip.id} + '/days/' + ${tripDay.id} + '/destination/select'}"
-                                                       class="inline-flex items-center px-2 py-1 border border-transparent text-xs font-medium rounded-md text-green-600 bg-green-50 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-150">
-                                                        <i class="fas fa-plus mr-1"></i>
-                                                        Select Destination
-                                                    </a>
-                                                </div>
-                                                <div th:if="${!trip.admins.contains(session.loggedInUser)}" class="flex items-center text-sm text-gray-400">
-                                                    <i class="fas fa-map-marker-alt mr-1"></i>
-                                                    <span>No destination set</span>
-                                                </div>
-                                            </div>
-                                        </div>
                                     </div>
                                 </div>
 
                                 <!-- Visits -->
-                                <div class="p-4 flex-1 overflow-y-auto" style="max-height: 400px;">
+                                <div class="p-4 flex-1">
                                     <div th:if="${tripDay.visits != null and !tripDay.visits.isEmpty()}" class="space-y-3">
                                         <!-- Loop through visits and display routes between them -->
                                         <div th:each="visit, visitStats : ${tripDay.visits}">

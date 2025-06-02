@@ -51,7 +51,7 @@ public class AuthViewController {
                     session.setAttribute("loggedInCredentials", credentials);
                     
                     redirectAttributes.addFlashAttribute("successMessage", "Login successful! Welcome back.");
-                    return "redirect:/";
+                    return "redirect:/trips";
                 } else {
                     redirectAttributes.addFlashAttribute("errorMessage", "Invalid username or password.");
                 }

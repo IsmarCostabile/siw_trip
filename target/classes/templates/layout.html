@@ -11,33 +11,13 @@
     <!-- FontAwesome CDN -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     
-    <!-- Google Maps JavaScript API -->
-    <script th:if="${googleMapsApiKey != null and !googleMapsApiKey.isEmpty()}" 
-            th:src="'https://maps.googleapis.com/maps/api/js?key=' + ${googleMapsApiKey} + '&libraries=places&callback=initAutocomplete'" 
-            async defer></script>
-    
-    <!-- Custom CSS for additional styling -->
-    <style>
-        .map-card-hover:hover {
-            transform: translateY(-4px);
-            transition: transform 0.3s ease;
-        }
-        
-        .gradient-bg {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-        
-        .sidebar-transition {
-            transition: all 0.3s ease-in-out;
-        }
-    </style>
 </head>
 <body class="bg-gray-50 min-h-screen flex">
     <!-- Sidebar -->
     <aside class="bg-white shadow-lg w-64 h-screen fixed md:sticky top-0 z-40 sidebar-transition transform -translate-x-full md:translate-x-0 flex flex-col" id="sidebar">
         <!-- Logo -->
         <div class="flex-shrink-0 flex items-center px-6 py-4 border-b border-gray-200">
-            <a href="/" class="flex items-center space-x-2">
+            <a href="/trips" class="flex items-center space-x-2">
                 <svg class="h-8 w-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
                 </svg>
@@ -47,11 +27,6 @@
         
         <!-- Main Navigation -->
         <nav class="flex-shrink-0 px-4 py-6 space-y-2">
-            <a href="/" class="flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition duration-150">
-                <i class="fas fa-home w-5 text-center mr-3"></i>
-                <span>Home</span>
-            </a>
-            
             <div th:if="${session.loggedInUser}">
                 <a href="/trips" class="flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition duration-150">
                     <i class="fas fa-map-marked-alt w-5 text-center mr-3"></i>
