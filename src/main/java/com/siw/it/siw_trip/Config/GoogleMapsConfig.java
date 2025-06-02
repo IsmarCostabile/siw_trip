@@ -1,4 +1,4 @@
-package com.siw.it.siw_trip.Configuration;
+package com.siw.it.siw_trip.Config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
