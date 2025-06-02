@@ -1,7 +1,12 @@
+/Users/ismarc/Documents/università/Informatica/6. Semestre/SiW/SiWTrips/siw_trip/src/main/java/com/siw/it/siw_trip/Config/GlobalControllerAdvice.java
 /Users/ismarc/Documents/università/Informatica/6. Semestre/SiW/SiWTrips/siw_trip/src/main/java/com/siw/it/siw_trip/Config/PasswordConfig.java
+/Users/ismarc/Documents/università/Informatica/6. Semestre/SiW/SiWTrips/siw_trip/src/main/java/com/siw/it/siw_trip/Configuration/GoogleMapsConfig.java
 /Users/ismarc/Documents/università/Informatica/6. Semestre/SiW/SiWTrips/siw_trip/src/main/java/com/siw/it/siw_trip/Controller/AuthController.java
+/Users/ismarc/Documents/università/Informatica/6. Semestre/SiW/SiWTrips/siw_trip/src/main/java/com/siw/it/siw_trip/Controller/GooglePlacesController.java
+/Users/ismarc/Documents/università/Informatica/6. Semestre/SiW/SiWTrips/siw_trip/src/main/java/com/siw/it/siw_trip/Controller/GooglePlacesWebController.java
 /Users/ismarc/Documents/università/Informatica/6. Semestre/SiW/SiWTrips/siw_trip/src/main/java/com/siw/it/siw_trip/Controller/InvitationController.java
 /Users/ismarc/Documents/università/Informatica/6. Semestre/SiW/SiWTrips/siw_trip/src/main/java/com/siw/it/siw_trip/Controller/LocationController.java
+/Users/ismarc/Documents/università/Informatica/6. Semestre/SiW/SiWTrips/siw_trip/src/main/java/com/siw/it/siw_trip/Controller/PlacesController.java
 /Users/ismarc/Documents/università/Informatica/6. Semestre/SiW/SiWTrips/siw_trip/src/main/java/com/siw/it/siw_trip/Controller/RouteController.java
 /Users/ismarc/Documents/università/Informatica/6. Semestre/SiW/SiWTrips/siw_trip/src/main/java/com/siw/it/siw_trip/Controller/TripController.java
 /Users/ismarc/Documents/università/Informatica/6. Semestre/SiW/SiWTrips/siw_trip/src/main/java/com/siw/it/siw_trip/Controller/TripDayController.java
@@ -9,10 +14,11 @@
 /Users/ismarc/Documents/università/Informatica/6. Semestre/SiW/SiWTrips/siw_trip/src/main/java/com/siw/it/siw_trip/Controller/VisitController.java
 /Users/ismarc/Documents/università/Informatica/6. Semestre/SiW/SiWTrips/siw_trip/src/main/java/com/siw/it/siw_trip/Model/Credentials.java
 /Users/ismarc/Documents/università/Informatica/6. Semestre/SiW/SiWTrips/siw_trip/src/main/java/com/siw/it/siw_trip/Model/Invitation.java
-/Users/ismarc/Documents/università/Informatica/6. Semestre/SiW/SiWTrips/siw_trip/src/main/java/com/siw/it/siw_trip/Model/InvitationStatus.java
 /Users/ismarc/Documents/università/Informatica/6. Semestre/SiW/SiWTrips/siw_trip/src/main/java/com/siw/it/siw_trip/Model/Location.java
+/Users/ismarc/Documents/università/Informatica/6. Semestre/SiW/SiWTrips/siw_trip/src/main/java/com/siw/it/siw_trip/Model/Pair.java
 /Users/ismarc/Documents/università/Informatica/6. Semestre/SiW/SiWTrips/siw_trip/src/main/java/com/siw/it/siw_trip/Model/PasswordResetToken.java
 /Users/ismarc/Documents/università/Informatica/6. Semestre/SiW/SiWTrips/siw_trip/src/main/java/com/siw/it/siw_trip/Model/Route.java
+/Users/ismarc/Documents/università/Informatica/6. Semestre/SiW/SiWTrips/siw_trip/src/main/java/com/siw/it/siw_trip/Model/TimePreference.java
 /Users/ismarc/Documents/università/Informatica/6. Semestre/SiW/SiWTrips/siw_trip/src/main/java/com/siw/it/siw_trip/Model/TransportMode.java
 /Users/ismarc/Documents/università/Informatica/6. Semestre/SiW/SiWTrips/siw_trip/src/main/java/com/siw/it/siw_trip/Model/Trip.java
 /Users/ismarc/Documents/università/Informatica/6. Semestre/SiW/SiWTrips/siw_trip/src/main/java/com/siw/it/siw_trip/Model/TripDay.java
@@ -20,6 +26,9 @@
 /Users/ismarc/Documents/università/Informatica/6. Semestre/SiW/SiWTrips/siw_trip/src/main/java/com/siw/it/siw_trip/Model/User.java
 /Users/ismarc/Documents/università/Informatica/6. Semestre/SiW/SiWTrips/siw_trip/src/main/java/com/siw/it/siw_trip/Model/UserRole.java
 /Users/ismarc/Documents/università/Informatica/6. Semestre/SiW/SiWTrips/siw_trip/src/main/java/com/siw/it/siw_trip/Model/Visit.java
+/Users/ismarc/Documents/università/Informatica/6. Semestre/SiW/SiWTrips/siw_trip/src/main/java/com/siw/it/siw_trip/Model/dto/CreateLocationFromPlaceRequest.java
+/Users/ismarc/Documents/università/Informatica/6. Semestre/SiW/SiWTrips/siw_trip/src/main/java/com/siw/it/siw_trip/Model/dto/GooglePlaceDto.java
+/Users/ismarc/Documents/università/Informatica/6. Semestre/SiW/SiWTrips/siw_trip/src/main/java/com/siw/it/siw_trip/Model/dto/PlaceSearchRequest.java
 /Users/ismarc/Documents/università/Informatica/6. Semestre/SiW/SiWTrips/siw_trip/src/main/java/com/siw/it/siw_trip/Repository/CredentialsRepository.java
 /Users/ismarc/Documents/università/Informatica/6. Semestre/SiW/SiWTrips/siw_trip/src/main/java/com/siw/it/siw_trip/Repository/InvitationRepository.java
 /Users/ismarc/Documents/università/Informatica/6. Semestre/SiW/SiWTrips/siw_trip/src/main/java/com/siw/it/siw_trip/Repository/LocationRepository.java
@@ -31,8 +40,10 @@
 /Users/ismarc/Documents/università/Informatica/6. Semestre/SiW/SiWTrips/siw_trip/src/main/java/com/siw/it/siw_trip/Repository/VisitRepository.java
 /Users/ismarc/Documents/università/Informatica/6. Semestre/SiW/SiWTrips/siw_trip/src/main/java/com/siw/it/siw_trip/Service/CredentialsService.java
 /Users/ismarc/Documents/università/Informatica/6. Semestre/SiW/SiWTrips/siw_trip/src/main/java/com/siw/it/siw_trip/Service/EmailService.java
+/Users/ismarc/Documents/università/Informatica/6. Semestre/SiW/SiWTrips/siw_trip/src/main/java/com/siw/it/siw_trip/Service/GooglePlacesService.java
 /Users/ismarc/Documents/università/Informatica/6. Semestre/SiW/SiWTrips/siw_trip/src/main/java/com/siw/it/siw_trip/Service/InvitationService.java
 /Users/ismarc/Documents/università/Informatica/6. Semestre/SiW/SiWTrips/siw_trip/src/main/java/com/siw/it/siw_trip/Service/LocationService.java
+/Users/ismarc/Documents/università/Informatica/6. Semestre/SiW/SiWTrips/siw_trip/src/main/java/com/siw/it/siw_trip/Service/RouteCalculationService.java
 /Users/ismarc/Documents/università/Informatica/6. Semestre/SiW/SiWTrips/siw_trip/src/main/java/com/siw/it/siw_trip/Service/RouteService.java
 /Users/ismarc/Documents/università/Informatica/6. Semestre/SiW/SiWTrips/siw_trip/src/main/java/com/siw/it/siw_trip/Service/TokenCleanupService.java
 /Users/ismarc/Documents/università/Informatica/6. Semestre/SiW/SiWTrips/siw_trip/src/main/java/com/siw/it/siw_trip/Service/TripDayService.java
@@ -42,5 +53,7 @@
 /Users/ismarc/Documents/università/Informatica/6. Semestre/SiW/SiWTrips/siw_trip/src/main/java/com/siw/it/siw_trip/SiwTripApplication.java
 /Users/ismarc/Documents/università/Informatica/6. Semestre/SiW/SiWTrips/siw_trip/src/main/java/com/siw/it/siw_trip/ViewControllers/AuthViewController.java
 /Users/ismarc/Documents/università/Informatica/6. Semestre/SiW/SiWTrips/siw_trip/src/main/java/com/siw/it/siw_trip/ViewControllers/HomeViewController.java
+/Users/ismarc/Documents/università/Informatica/6. Semestre/SiW/SiWTrips/siw_trip/src/main/java/com/siw/it/siw_trip/ViewControllers/InvitationViewController.java
+/Users/ismarc/Documents/università/Informatica/6. Semestre/SiW/SiWTrips/siw_trip/src/main/java/com/siw/it/siw_trip/ViewControllers/ItineraryViewController.java
 /Users/ismarc/Documents/università/Informatica/6. Semestre/SiW/SiWTrips/siw_trip/src/main/java/com/siw/it/siw_trip/ViewControllers/TripViewController.java
 /Users/ismarc/Documents/università/Informatica/6. Semestre/SiW/SiWTrips/siw_trip/src/main/java/com/siw/it/siw_trip/ViewControllers/UserViewController.java

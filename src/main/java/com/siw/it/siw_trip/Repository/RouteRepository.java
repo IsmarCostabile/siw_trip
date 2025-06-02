@@ -4,6 +4,7 @@ import com.siw.it.siw_trip.Model.Route;
 import com.siw.it.siw_trip.Model.Visit;
 import com.siw.it.siw_trip.Model.TransportMode;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -30,4 +31,23 @@ public interface RouteRepository extends JpaRepository<Route, Long> {
     
     @Query("SELECT r FROM Route r WHERE r.estimatedDurationMinutes > :duration")
     List<Route> findByEstimatedDurationGreaterThan(@Param("duration") Integer duration);
+    
+    /**
+     * Find all routes for a specific trip day by ID
+     */
+    @Query("SELECT r FROM Route r WHERE r.tripDay.id = :tripDayId")
+    List<Route> findByTripDayId(@Param("tripDayId") Long tripDayId);
+    
+    /**
+     * Find all routes involving a specific visit (either as source or destination)
+     */
+    @Query("SELECT r FROM Route r WHERE r.fromVisit = :visit OR r.toVisit = :visit")
+    List<Route> findByVisit(@Param("visit") Visit visit);
+    
+    /**
+     * Delete all routes involving a specific visit
+     */
+    @Modifying
+    @Query("DELETE FROM Route r WHERE r.fromVisit = :visit OR r.toVisit = :visit")
+    void deleteByVisit(@Param("visit") Visit visit);
 }

@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(~{::title}, ~{::main})}">
+<head>
+    <title th:text="${'Add Location for ' + trip.name + ' - SiW Trips'}">Add Location - SiW Trips</title>
+</head>
+<body>
+    <main>
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <!-- Header -->
+            <div class="mb-8">
+                <nav class="flex items-center space-x-2 text-sm text-gray-500 mb-4" aria-label="Breadcrumb navigation">
+                    <a href="/trips" class="hover:text-blue-600">All Trips</a>
+                    <i class="fas fa-chevron-right text-xs"></i>
+                    <a th:href="@{'/trips/' + ${trip.id}}" class="hover:text-blue-600" th:text="${trip.name}">Trip Name</a>
+                    <i class="fas fa-chevron-right text-xs"></i>
+                    <a th:href="@{'/trips/' + ${trip.id} + '/itinerary'}" class="hover:text-blue-600">Itinerary</a>
+                    <i class="fas fa-chevron-right text-xs"></i>
+                    <span class="text-gray-900">Add Location</span>
+                </nav>
+
+                <h1 class="text-3xl font-bold text-gray-900 mb-2">Add Location</h1>
+                <p class="text-gray-600">
+                    Step 1 of 2: Search and select a location for your visit on 
+                    <span th:text="${#temporals.format(tripDay.date, 'EEEE, MMM dd')}">Day</span>
+                    <span th:if="${tripDay.description}" class="text-gray-500">
+                        - <span th:text="${tripDay.description}">Day description</span>
+                    </span>
+                </p>
+            </div>
+
+            <!-- Messages -->
+            <div th:if="${errorMessage}" class="mb-6 p-4 bg-red-50 border border-red-200 rounded-md">
+                <div class="flex items-center">
+                    <svg class="w-5 h-5 text-red-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+                    </svg>
+                    <p class="text-sm text-red-600" th:text="${errorMessage}">Error message</p>
+                </div>
+            </div>
+
+            <!-- Progress Indicator -->
+            <div class="mb-8">
+                <div class="flex items-center">
+                    <div class="flex items-center">
+                        <div class="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-medium">
+                            1
+                        </div>
+                        <span class="ml-2 text-sm font-medium text-blue-600">Add Location</span>
+                    </div>
+                    <div class="flex-1 mx-4 h-px bg-gray-300"></div>
+                    <div class="flex items-center">
+                        <div class="w-8 h-8 bg-gray-300 text-gray-500 rounded-full flex items-center justify-center text-sm font-medium">
+                            2
+                        </div>
+                        <span class="ml-2 text-sm font-medium text-gray-500">Add Visit Details</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Google Maps API Status -->
+            <div th:if="${!googlePlacesService.isConfigured()}" class="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-md">
+                <div class="flex items-center">
+                    <svg class="w-5 h-5 text-yellow-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                    </svg>
+                    <p class="text-sm text-yellow-700">Google Places API not configured. Using manual location entry form.</p>
+                </div>
+            </div>
+
+            <!-- Location Search Form (Google Places) -->
+            <div th:if="${googlePlacesService.isConfigured()}" class="bg-white shadow-md rounded-lg p-6 mb-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">
+                    <i class="fas fa-search mr-2"></i>
+                    Search for Location
+                </h3>
+                
+                <form th:action="@{'/trips/' + ${trip.id} + '/days/' + ${tripDay.id} + '/locations/search'}" method="post" class="space-y-4">
+                    <div>
+                        <label for="location-search" class="block text-sm font-medium text-gray-700 mb-2">
+                            Search for a place
+                        </label>
+                        <input type="text" id="location-search" name="q" th:value="${searchQuery}" required
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                               placeholder="Type a place name, address, or landmark...">
+                        <p class="mt-1 text-sm text-gray-500">Enter a place name, address, or landmark to search</p>
+                    </div>
+                    
+                    <div class="flex items-center justify-between">
+                        <button type="submit" 
+                                class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors">
+                            <i class="fas fa-search mr-2"></i>
+                            Search Places
+                        </button>
+                    </div>
+                </form>
+                
+                <!-- Search Results -->
+                <div th:if="${searchResults != null and !searchResults.isEmpty()}" class="mt-6 pt-4 border-t border-gray-200">
+                    <h4 class="text-lg font-medium text-gray-900 mb-4">
+                        <i class="fas fa-map-marker-alt mr-2"></i>
+                        Search Results
+                        <span class="text-sm font-normal text-gray-500">for "<span th:text="${searchQuery}">search term</span>"</span>
+                    </h4>
+                    
+                    <div class="space-y-4">
+                        <div th:each="place : ${searchResults}" class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                            <div class="flex justify-between items-start">
+                                <div class="flex-1">
+                                    <h5 class="font-medium text-gray-900" th:text="${place.name}">Place Name</h5>
+                                    <p class="text-sm text-gray-600 mt-1" th:text="${place.formattedAddress}">Address</p>
+                                    
+                                    <!-- Main details row -->
+                                    <div class="flex items-center space-x-4 mt-3 text-sm">
+                                        <!-- Rating -->
+                                        <span th:if="${place.rating != null}" class="flex items-center">
+                                            <i class="fas fa-star text-yellow-400 mr-1"></i>
+                                            <span th:text="${place.rating}" class="font-medium">4.5</span>
+                                            <span th:if="${place.userRatingsTotal != null}" class="text-gray-500 ml-1">
+                                                (<span th:text="${place.userRatingsTotal}">123</span>)
+                                            </span>
+                                        </span>
+                                        
+                                        <!-- Price Level -->
+                                        <span th:if="${place.priceLevel != null}" class="flex items-center text-green-600">
+                                            <i class="fas fa-dollar-sign mr-1"></i>
+                                            <span th:text="${place.priceLevelDisplay}">$$</span>
+                                        </span>
+                                        
+                                        <!-- Open Now Status -->
+                                        <span th:if="${place.openingHours != null and place.openingHours.openNow != null}" 
+                                              th:class="${place.openingHours.openNow ? 'text-green-600' : 'text-red-600'}">
+                                            <i class="fas fa-clock mr-1"></i>
+                                            <span th:text="${place.openingHours.openNow ? 'Open now' : 'Closed'}">Open now</span>
+                                        </span>
+                                        
+                                        <!-- Business Status -->
+                                        <span th:if="${place.businessStatus != null and place.businessStatus != 'OPERATIONAL'}" 
+                                              class="text-orange-600">
+                                            <i class="fas fa-exclamation-triangle mr-1"></i>
+                                            <span th:text="${#strings.capitalize(#strings.replace(place.businessStatus, '_', ' '))}">Temporarily Closed</span>
+                                        </span>
+                                    </div>
+                                    
+                                    <!-- Place types -->
+                                    <div th:if="${place.types != null and place.types.length > 0}" class="mt-2">
+                                        <div class="flex flex-wrap gap-1">
+                                            <span th:each="type, iterStat : ${place.types}" 
+                                                  th:if="${iterStat.index < 3}"
+                                                  class="inline-block px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full"
+                                                  th:text="${#strings.capitalize(#strings.replace(type, '_', ' '))}">restaurant</span>
+                                            <span th:if="${place.types.length > 3}" 
+                                                  class="inline-block px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full">
+                                                +<span th:text="${place.types.length - 3}">2</span> more
+                                            </span>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Services and amenities -->
+                                    <div class="flex flex-wrap gap-2 mt-3 text-xs">
+                                        <span th:if="${place.delivery == true}" class="flex items-center text-blue-600">
+                                            <i class="fas fa-truck mr-1"></i>Delivery
+                                        </span>
+                                        <span th:if="${place.takeout == true}" class="flex items-center text-blue-600">
+                                            <i class="fas fa-shopping-bag mr-1"></i>Takeout
+                                        </span>
+                                        <span th:if="${place.dineIn == true}" class="flex items-center text-blue-600">
+                                            <i class="fas fa-utensils mr-1"></i>Dine-in
+                                        </span>
+                                        <span th:if="${place.reservable == true}" class="flex items-center text-blue-600">
+                                            <i class="fas fa-calendar-check mr-1"></i>Reservations
+                                        </span>
+                                        <span th:if="${place.wheelchairAccessibleEntrance == true}" class="flex items-center text-blue-600">
+                                            <i class="fas fa-wheelchair mr-1"></i>Accessible
+                                        </span>
+                                    </div>
+                                    
+                                    <!-- Contact info -->
+                                    <div th:if="${place.formattedPhoneNumber != null or place.website != null}" class="flex flex-wrap gap-3 mt-3 text-xs text-gray-600">
+                                        <a th:if="${place.formattedPhoneNumber != null}" 
+                                           th:href="'tel:' + ${place.formattedPhoneNumber}"
+                                           class="flex items-center hover:text-blue-600">
+                                            <i class="fas fa-phone mr-1"></i>
+                                            <span th:text="${place.formattedPhoneNumber}">+1 (555) 123-4567</span>
+                                        </a>
+                                        <a th:if="${place.website != null}" 
+                                           th:href="${place.website}" 
+                                           target="_blank"
+                                           class="flex items-center hover:text-blue-600">
+                                            <i class="fas fa-external-link-alt mr-1"></i>Website
+                                        </a>
+                                    </div>
+                                    
+                                    <!-- Editorial summary -->
+                                    <div th:if="${place.editorialSummary != null and place.editorialSummary.overview != null}" 
+                                         class="mt-3 p-2 bg-blue-50 rounded text-sm text-gray-700 italic">
+                                        <span th:text="${place.editorialSummary.overview}">A popular local restaurant known for its authentic cuisine.</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="ml-4 flex flex-col space-y-2">
+                                    <form th:action="@{'/trips/' + ${trip.id} + '/days/' + ${tripDay.id} + '/locations/from-place'}" method="post">
+                                        <input type="hidden" name="placeId" th:value="${place.placeId}">
+                                        <button type="submit" 
+                                                class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 transition-colors text-sm whitespace-nowrap">
+                                            <i class="fas fa-plus mr-2"></i>
+                                            Use This Place
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div th:if="${searchResults != null and searchResults.isEmpty()}" class="mt-6 pt-4 border-t border-gray-200">
+                    <div class="text-center py-4">
+                        <i class="fas fa-search text-gray-400 text-2xl mb-2"></i>
+                        <p class="text-gray-600">No places found for "<span th:text="${searchQuery}">search term</span>"</p>
+                        <p class="text-sm text-gray-500 mt-1">Try different keywords or add the location manually below</p>
+                    </div>
+                </div>
+            </div>
+    </main>
+</body>
+</html>

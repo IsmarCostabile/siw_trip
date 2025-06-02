@@ -4,6 +4,7 @@ import com.siw.it.siw_trip.Model.User;
 import com.siw.it.siw_trip.Model.Trip;
 import com.siw.it.siw_trip.Service.TripService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -16,6 +17,10 @@ import java.util.Collections;
 public class GlobalControllerAdvice {
 
     private final TripService tripService;
+    
+    @Value("${google.maps.api.key:}")
+    private String googleMapsApiKey;
+    
     private static final String LOGGED_IN_USER = "loggedInUser";
 
     @Autowired
@@ -24,7 +29,15 @@ public class GlobalControllerAdvice {
     }
 
     @ModelAttribute
-    public void addUserTripsToModel(Model model, HttpSession session) {
+    public void addCommonAttributes(Model model, HttpSession session) {
+        // Add Google Maps API key to all templates
+        model.addAttribute("googleMapsApiKey", googleMapsApiKey);
+        
+        // Add user trips to model
+        addUserTripsToModel(model, session);
+    }
+
+    private void addUserTripsToModel(Model model, HttpSession session) {
         User loggedInUser = (User) session.getAttribute(LOGGED_IN_USER);
         
         if (loggedInUser != null) {

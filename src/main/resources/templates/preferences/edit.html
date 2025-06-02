@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(~{::title}, ~{::content})}">
+<head>
+    <title>Edit Preferences - SiW Trips</title>
+</head>
+<body>
+    <div th:fragment="content" class="min-h-screen bg-gray-50">
+        
+        <!-- Header Section -->
+        <div class="bg-white shadow">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center py-6">
+                    <div>
+                        <h1 class="text-3xl font-bold text-gray-900">Edit Preferences</h1>
+                        <p class="mt-1 text-sm text-gray-600">Customize your SiW Trips experience</p>
+                    </div>
+                    <div class="flex space-x-3">
+                        <a th:href="@{/preferences}" 
+                           class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out">
+                            <i class="fas fa-arrow-left mr-2"></i>
+                            Back to Preferences
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Success/Error Messages -->
+        <div th:if="${successMessage}" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
+            <div class="bg-green-50 border border-green-200 rounded-md p-4">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-check-circle text-green-400"></i>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm font-medium text-green-800" th:text="${successMessage}"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div th:if="${errorMessage}" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
+            <div class="bg-red-50 border border-red-200 rounded-md p-4">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-exclamation-circle text-red-400"></i>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm font-medium text-red-800" th:text="${errorMessage}"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <form th:object="${preferences}" th:action="@{/preferences/update}" method="post" class="bg-white shadow rounded-lg">
+                <div class="px-6 py-8">
+                    
+                    <!-- User Info -->
+                    <div class="mb-8 pb-6 border-b border-gray-200">
+                        <h2 class="text-lg font-medium text-gray-900 mb-2">User Information</h2>
+                        <p class="text-sm text-gray-600">
+                            <span class="font-medium">Name:</span> 
+                            <span th:text="${user.fullName}"></span>
+                        </p>
+                        <p class="text-sm text-gray-600">
+                            <span class="font-medium">Email:</span> 
+                            <span th:text="${user.email}"></span>
+                        </p>
+                    </div>
+
+                    <!-- Preferences Form -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        
+                        <!-- Language & Localization -->
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-900 mb-4">
+                                <i class="fas fa-language text-indigo-600 mr-2"></i>
+                                Language & Localization
+                            </h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <label for="language" class="block text-sm font-medium text-gray-700">Language</label>
+                                    <select th:field="*{language}" id="language" 
+                                            class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+                                        <option th:each="lang : ${languages}" 
+                                                th:value="${lang.name()}" 
+                                                th:text="${lang.displayName}"></option>
+                                    </select>
+                                    <div th:if="${#fields.hasErrors('language')}" class="mt-1 text-sm text-red-600" th:errors="*{language}"></div>
+                                </div>
+
+                                <div>
+                                    <label for="dateFormat" class="block text-sm font-medium text-gray-700">Date Format</label>
+                                    <select th:field="*{dateFormat}" id="dateFormat" 
+                                            class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+                                        <option value="yyyy-MM-dd">YYYY-MM-DD (2025-06-02)</option>
+                                        <option value="dd/MM/yyyy">DD/MM/YYYY (02/06/2025)</option>
+                                        <option value="MM/dd/yyyy">MM/DD/YYYY (06/02/2025)</option>
+                                        <option value="dd-MM-yyyy">DD-MM-YYYY (02-06-2025)</option>
+                                    </select>
+                                    <div th:if="${#fields.hasErrors('dateFormat')}" class="mt-1 text-sm text-red-600" th:errors="*{dateFormat}"></div>
+                                </div>
+
+                                <div>
+                                    <label for="currency" class="block text-sm font-medium text-gray-700">Currency</label>
+                                    <select th:field="*{currency}" id="currency" 
+                                            class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+                                        <option value="EUR">EUR (€)</option>
+                                        <option value="USD">USD ($)</option>
+                                        <option value="GBP">GBP (£)</option>
+                                        <option value="JPY">JPY (¥)</option>
+                                        <option value="CHF">CHF (Fr)</option>
+                                        <option value="CAD">CAD (C$)</option>
+                                        <option value="AUD">AUD (A$)</option>
+                                    </select>
+                                    <div th:if="${#fields.hasErrors('currency')}" class="mt-1 text-sm text-red-600" th:errors="*{currency}"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Units & Display -->
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-900 mb-4">
+                                <i class="fas fa-cog text-indigo-600 mr-2"></i>
+                                Units & Display
+                            </h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <label for="distanceUnit" class="block text-sm font-medium text-gray-700">Distance Unit</label>
+                                    <select th:field="*{distanceUnit}" id="distanceUnit" 
+                                            class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+                                        <option th:each="unit : ${distanceUnits}" 
+                                                th:value="${unit.name()}" 
+                                                th:text="${unit.displayName}"></option>
+                                    </select>
+                                    <div th:if="${#fields.hasErrors('distanceUnit')}" class="mt-1 text-sm text-red-600" th:errors="*{distanceUnit}"></div>
+                                </div>
+
+                                <div>
+                                    <label for="temperatureUnit" class="block text-sm font-medium text-gray-700">Temperature Unit</label>
+                                    <select th:field="*{temperatureUnit}" id="temperatureUnit" 
+                                            class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+                                        <option th:each="tempUnit : ${temperatureUnits}" 
+                                                th:value="${tempUnit.name()}" 
+                                                th:text="${tempUnit.displayName}"></option>
+                                    </select>
+                                    <div th:if="${#fields.hasErrors('temperatureUnit')}" class="mt-1 text-sm text-red-600" th:errors="*{temperatureUnit}"></div>
+                                </div>
+
+                                <div>
+                                    <label for="timeFormat" class="block text-sm font-medium text-gray-700">Time Format</label>
+                                    <select th:field="*{timeFormat}" id="timeFormat" 
+                                            class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+                                        <option th:each="timeFormat : ${timeFormats}" 
+                                                th:value="${timeFormat.name()}" 
+                                                th:text="${timeFormat.displayName}"></option>
+                                    </select>
+                                    <div th:if="${#fields.hasErrors('timeFormat')}" class="mt-1 text-sm text-red-600" th:errors="*{timeFormat}"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Notifications -->
+                        <div class="md:col-span-2">
+                            <h3 class="text-lg font-medium text-gray-900 mb-4">
+                                <i class="fas fa-bell text-indigo-600 mr-2"></i>
+                                Notification Settings
+                            </h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="flex items-center">
+                                    <input th:field="*{notificationsEnabled}" id="notificationsEnabled" 
+                                           type="checkbox" 
+                                           class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                                    <label for="notificationsEnabled" class="ml-2 block text-sm text-gray-900">
+                                        Enable push notifications
+                                    </label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input th:field="*{emailNotifications}" id="emailNotifications" 
+                                           type="checkbox" 
+                                           class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                                    <label for="emailNotifications" class="ml-2 block text-sm text-gray-900">
+                                        Enable email notifications
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Form Actions -->
+                    <div class="mt-8 pt-6 border-t border-gray-200 flex justify-between">
+                        <a th:href="@{/preferences}" 
+                           class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out">
+                            <i class="fas fa-times mr-2"></i>
+                            Cancel
+                        </a>
+                        
+                        <button type="submit" 
+                                class="inline-flex items-center px-6 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out">
+                            <i class="fas fa-save mr-2"></i>
+                            Save Preferences
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

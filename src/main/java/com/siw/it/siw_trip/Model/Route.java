@@ -20,6 +20,10 @@ public class Route implements Serializable {
     @JoinColumn(name = "to_visit_id", referencedColumnName = "id", nullable = false)
     private Visit toVisit;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "trip_day_id", referencedColumnName = "id", nullable = false)
+    private TripDay tripDay;
+
     @Column(name = "estimated_duration_minutes")
     private Integer estimatedDurationMinutes;
 
@@ -36,6 +40,9 @@ public class Route implements Serializable {
     @Column(length = 1000)
     private String notes;
 
+    @Column(name = "leave_at_preference", nullable = false)
+    private Boolean leaveAtPreference = true; // true for "leave at", false for "arrive by"
+
     // Constants
     private static final String UNKNOWN_LOCATION = "Unknown";
 
@@ -43,17 +50,32 @@ public class Route implements Serializable {
     public Route() {}
 
     // Constructor
-    public Route(Visit fromVisit, Visit toVisit) {
+    public Route(Visit fromVisit, Visit toVisit, TripDay tripDay) {
         this.fromVisit = fromVisit;
         this.toVisit = toVisit;
+        this.tripDay = tripDay;
+        this.leaveAtPreference = true; // Default to "leave at"
+        this.transportMode = TransportMode.DRIVING; // Default transport mode
     }
 
     // Constructor with details
-    public Route(Visit fromVisit, Visit toVisit, String instructions, Integer estimatedDurationMinutes) {
+    public Route(Visit fromVisit, Visit toVisit, TripDay tripDay, String instructions, Integer estimatedDurationMinutes) {
         this.fromVisit = fromVisit;
         this.toVisit = toVisit;
+        this.tripDay = tripDay;
         this.instructions = instructions;
         this.estimatedDurationMinutes = estimatedDurationMinutes;
+        this.leaveAtPreference = true; // Default to "leave at"
+        this.transportMode = TransportMode.DRIVING; // Default transport mode
+    }
+
+    // Constructor with time preference
+    public Route(Visit fromVisit, Visit toVisit, TripDay tripDay, Boolean leaveAtPreference) {
+        this.fromVisit = fromVisit;
+        this.toVisit = toVisit;
+        this.tripDay = tripDay;
+        this.leaveAtPreference = leaveAtPreference;
+        this.transportMode = TransportMode.DRIVING; // Default transport mode
     }
 
     // Getters and Setters
@@ -79,6 +101,14 @@ public class Route implements Serializable {
 
     public void setToVisit(Visit toVisit) {
         this.toVisit = toVisit;
+    }
+
+    public TripDay getTripDay() {
+        return tripDay;
+    }
+
+    public void setTripDay(TripDay tripDay) {
+        this.tripDay = tripDay;
     }
 
     public Integer getEstimatedDurationMinutes() {
@@ -121,6 +151,14 @@ public class Route implements Serializable {
         this.notes = notes;
     }
 
+    public Boolean getLeaveAtPreference() {
+        return leaveAtPreference;
+    }
+
+    public void setLeaveAtPreference(Boolean leaveAtPreference) {
+        this.leaveAtPreference = leaveAtPreference;
+    }
+
     // Helper methods
     public String getRouteDescription() {
         String from = fromVisit != null && fromVisit.getLocation() != null ? fromVisit.getLocation().getName() : UNKNOWN_LOCATION;
@@ -141,6 +179,10 @@ public class Route implements Serializable {
         }
     }
 
+    public String getTimingPreferenceDescription() {
+        return leaveAtPreference != null && leaveAtPreference ? "Leave at" : "Arrive by";
+    }
+
     @Override
     public String toString() {
         return "Route{" +
@@ -149,6 +191,7 @@ public class Route implements Serializable {
                 ", to=" + (toVisit != null ? toVisit.getName() : "null") +
                 ", duration=" + estimatedDurationMinutes +
                 ", mode=" + transportMode +
+                ", timing=" + getTimingPreferenceDescription() +
                 '}';
     }
 }

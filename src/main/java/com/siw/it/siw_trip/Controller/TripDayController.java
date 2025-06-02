@@ -104,25 +104,36 @@ public class TripDayController {
         return ResponseEntity.ok(updatedTripDay);
     }
 
-    @PutMapping("/{id}/destination-visit")
-    public ResponseEntity<TripDay> updateDestinationVisit(
+    @PutMapping("/{id}/destination-location")
+    public ResponseEntity<TripDay> updateDestinationLocation(
             @PathVariable Long id,
-            @RequestBody DestinationVisitUpdateRequest request) {
+            @RequestBody DestinationLocationUpdateRequest request) {
         Optional<TripDay> tripDayOpt = tripDayService.findById(id);
         if (!tripDayOpt.isPresent()) {
             return ResponseEntity.notFound().build();
         }
-        
-        TripDay updatedTripDay = tripDayService.updateDestinationVisit(id, request.getDestinationVisitId());
+
+        TripDay updatedTripDay = tripDayService.updateDestinationLocation(id, request.getDestinationLocationId());
         return ResponseEntity.ok(updatedTripDay);
     }
+    
+    @DeleteMapping("/{id}/destination")
+    public ResponseEntity<TripDay> removeDestinationFromTripDay(@PathVariable Long id) {    
+    Optional<TripDay> tripDayOpt = tripDayService.findById(id);
+    if (!tripDayOpt.isPresent()) {
+        return ResponseEntity.notFound().build();
+    }
+    
+    TripDay updatedTripDay = tripDayService.removeDestination(id);
+    return ResponseEntity.ok(updatedTripDay);
+}
 
     // Inner class for request body
-    public static class DestinationVisitUpdateRequest {
-        private Long destinationVisitId;
+    public static class DestinationLocationUpdateRequest {
+        private Long destinationLocationId;
         
         // Getters and setters
-        public Long getDestinationVisitId() { return destinationVisitId; }
-        public void setDestinationVisitId(Long destinationVisitId) { this.destinationVisitId = destinationVisitId; }
+        public Long getDestinationLocationId() { return destinationLocationId; }
+        public void setDestinationLocationId(Long destinationLocationId) { this.destinationLocationId = destinationLocationId; }
     }
 }

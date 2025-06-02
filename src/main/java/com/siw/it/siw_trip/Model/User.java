@@ -3,6 +3,8 @@ package com.siw.it.siw_trip.Model;
 import jakarta.persistence.*;
 import java.io.Serializable;
 
+import com.siw.it.siw_trip.Model.UserPreferences.UserPreferences;
+
 @Entity
 @Table(name = "users")
 public class User implements Serializable {
@@ -27,6 +29,9 @@ public class User implements Serializable {
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Credentials credentials;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private UserPreferences preferences;
 
     // Default constructor
     public User() {}
@@ -86,6 +91,14 @@ public class User implements Serializable {
 
     public void setCredentials(Credentials credentials) {
         this.credentials = credentials;
+    }
+
+    public UserPreferences getPreferences() {
+        return preferences;
+    }
+
+    public void setPreferences(UserPreferences preferences) {
+        this.preferences = preferences;
     }
 
     // Helper methods to check roles

@@ -1,6 +1,7 @@
 package com.siw.it.siw_trip.Controller;
 
 import com.siw.it.siw_trip.Model.Location;
+import com.siw.it.siw_trip.Model.dto.GooglePlaceDto;
 import com.siw.it.siw_trip.Service.LocationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -81,5 +82,23 @@ public class LocationController {
         }
         locationService.deleteById(id);
         return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * Create a location from Google Places data
+     */
+    @PostMapping("/from-google-place")
+    public ResponseEntity<Location> createLocationFromGooglePlace(@RequestBody GooglePlaceDto googlePlaceDto) {
+        try {
+            // Convert DTO to Location entity
+            Location location = googlePlaceDto.toLocation();
+            
+            // Save the location
+            Location savedLocation = locationService.save(location);
+            
+            return ResponseEntity.status(HttpStatus.CREATED).body(savedLocation);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
     }
 }
