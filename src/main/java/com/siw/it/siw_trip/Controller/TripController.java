@@ -373,6 +373,191 @@ public class TripController {
         }
     }
 
+    @PostMapping("/{id}/participants/{userId}/remove")
+    public ResponseEntity<Trip> removeParticipant(
+            @PathVariable Long id,
+            @PathVariable Long userId,
+            @RequestHeader("User-Id") Long requesterId) {
+        try {
+            Trip trip = tripService.findByIdOrThrow(id);
+            User userToRemove = userService.findByIdOrThrow(userId);
+            User requester = userService.findByIdOrThrow(requesterId);
+            
+            // Check if requester is an admin
+            if (!trip.getAdmins().contains(requester)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
+            
+            // Check if user is a participant/admin
+            boolean isParticipant = trip.getParticipants().contains(userToRemove);
+            boolean isAdmin = trip.getAdmins().contains(userToRemove);
+            boolean hasInvitation = invitationService.hasUserBeenInvited(userToRemove, trip);
+            
+            if (!isParticipant && !isAdmin && !hasInvitation) {
+                return ResponseEntity.badRequest().build();
+            }
+            
+            // Prevent removing the only admin
+            if (trip.getAdmins().size() == 1 && trip.getAdmins().contains(userToRemove)) {
+                return ResponseEntity.status(HttpStatus.CONFLICT).build();
+            }
+            
+            // Handle invitation cancellation or participant removal
+            if (hasInvitation) {
+                invitationService.cancelInvitation(userToRemove, trip, requester);
+            } else {
+                if (isAdmin) {
+                    tripService.removeAdmin(id, userId);
+                }
+                if (isParticipant) {
+                    tripService.removeParticipant(id, userId);
+                }
+            }
+            
+            Trip updatedTrip = tripService.findByIdOrThrow(id);
+            return ResponseEntity.ok(updatedTrip);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @PostMapping("/{id}/participants/invite")
+    public ResponseEntity<Map<String, String>> inviteParticipant(
+            @PathVariable Long id,
+            @RequestParam Long userId,
+            @RequestParam(defaultValue = "false") boolean asAdmin,
+            @RequestHeader("User-Id") Long inviterId) {
+        try {
+            Trip trip = tripService.findByIdOrThrow(id);
+            User userToInvite = userService.findByIdOrThrow(userId);
+            User inviter = userService.findByIdOrThrow(inviterId);
+            
+            // Check if inviter is an admin
+            if (!trip.getAdmins().contains(inviter)) {
+                Map<String, String> error = new HashMap<>();
+                error.put("error", "Not authorized to send invitations");
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
+            }
+            
+            // Check if user is already a participant or admin
+            if (trip.getParticipants().contains(userToInvite) || trip.getAdmins().contains(userToInvite)) {
+                Map<String, String> error = new HashMap<>();
+                error.put("error", "User is already a participant in this trip");
+                return ResponseEntity.badRequest().body(error);
+            }
+
+            // Check if there's already an invitation
+            if (invitationService.hasUserBeenInvited(userToInvite, trip)) {
+                Map<String, String> error = new HashMap<>();
+                error.put("error", "User has already been invited to this trip");
+                return ResponseEntity.badRequest().body(error);
+            }
+
+            // Create invitation message
+            String invitationMessage = asAdmin ? 
+                "You have been invited to join '" + trip.getName() + "' as an administrator." :
+                "You have been invited to join the trip '" + trip.getName() + "'.";
+
+            // Create invitation
+            invitationService.createInvitation(userToInvite, trip, invitationMessage, inviter, asAdmin);
+            
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Invitation sent successfully");
+            return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException e) {
+            Map<String, String> error = new HashMap<>();
+            error.put("error", "User or trip not found");
+            return ResponseEntity.notFound().header("Content-Type", "application/json").build();
+        }
+    }
+
+    @PostMapping("/{id}/manage-participant")
+    public ResponseEntity<Trip> manageParticipant(
+            @PathVariable Long id,
+            @RequestBody ParticipantManagementRequest request,
+            @RequestHeader("User-Id") Long managerId) {
+        try {
+            Trip trip = tripService.findByIdOrThrow(id);
+            User manager = userService.findByIdOrThrow(managerId);
+            User targetUser = userService.findByIdOrThrow(request.getUserId());
+            
+            // Check if manager is an admin
+            if (!trip.getAdmins().contains(manager)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
+            
+            switch (request.getAction().toLowerCase()) {
+                case "promote":
+                    if (trip.getParticipants().contains(targetUser) && !trip.getAdmins().contains(targetUser)) {
+                        tripService.addAdmin(id, request.getUserId());
+                    }
+                    break;
+                case "demote":
+                    if (trip.getAdmins().contains(targetUser) && trip.getAdmins().size() > 1) {
+                        tripService.removeAdmin(id, request.getUserId());
+                    }
+                    break;
+                default:
+                    return ResponseEntity.badRequest().build();
+            }
+            
+            Trip updatedTrip = tripService.findByIdOrThrow(id);
+            return ResponseEntity.ok(updatedTrip);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @GetMapping("/user/{userId}/accessible")
+    public ResponseEntity<List<Trip>> getAccessibleTripsForUser(@PathVariable Long userId) {
+        try {
+            User user = userService.findByIdOrThrow(userId);
+            List<Trip> trips = tripService.findTripsForUser(user);
+            return ResponseEntity.ok(trips);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @GetMapping("/{id}/participants")
+    public ResponseEntity<Map<String, Object>> getTripParticipants(@PathVariable Long id) {
+        try {
+            Trip trip = tripService.findByIdOrThrow(id);
+            
+            Map<String, Object> participants = new HashMap<>();
+            participants.put("admins", trip.getAdmins());
+            participants.put("participants", trip.getParticipants());
+            participants.put("totalCount", trip.getParticipants().size());
+            participants.put("adminCount", trip.getAdmins().size());
+            
+            return ResponseEntity.ok(participants);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @GetMapping("/{id}/summary")
+    public ResponseEntity<Map<String, Object>> getTripSummary(@PathVariable Long id) {
+        try {
+            Trip trip = tripService.findByIdOrThrow(id);
+            
+            Map<String, Object> summary = new HashMap<>();
+            summary.put("id", trip.getId());
+            summary.put("name", trip.getName());
+            summary.put("status", trip.getStatus());
+            summary.put("startDateTime", trip.getStartDateTime());
+            summary.put("endDateTime", trip.getEndDateTime());
+            summary.put("participantCount", trip.getParticipants().size());
+            summary.put("adminCount", trip.getAdmins().size());
+            summary.put("createdAt", trip.getCreatedAt());
+            summary.put("updatedAt", trip.getUpdatedAt());
+            
+            return ResponseEntity.ok(summary);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
     // Inner classes for request bodies
     public static class ParticipantRequest {
         private Long userId;
@@ -400,5 +585,26 @@ public class TripController {
 
         public BigDecimal getBudget() { return budget; }
         public void setBudget(BigDecimal budget) { this.budget = budget; }
+    }
+
+    public static class ParticipantManagementRequest {
+        private Long userId;
+        private String action; // "promote" or "demote"
+
+        public Long getUserId() {
+            return userId;
+        }
+
+        public void setUserId(Long userId) {
+            this.userId = userId;
+        }
+
+        public String getAction() {
+            return action;
+        }
+
+        public void setAction(String action) {
+            this.action = action;
+        }
     }
 }
